@@ -260,6 +260,20 @@ func (w WebDriverCore) newSession(desired, required Capabilities) (*Session, err
 	return &Session{Id: sessionId, Capabilities: capabilities}, err
 }
 
+func (w WebDriverCore) newChromeSession(desired, required, prefs Capabilities) (*Session, error) {
+	if desired == nil {
+		desired = map[string]interface{}{}
+	}
+	p := params{"desiredCapabilities": desired, "requiredCapabilities": required, "prefs": prefs}
+	sessionId, data, err := w.do(p, "POST", "/session")
+	if err != nil {
+		return nil, err
+	}
+	var capabilities Capabilities
+	err = json.Unmarshal(data, &capabilities)
+	return &Session{Id: sessionId, Capabilities: capabilities}, err
+}
+
 //Returns a list of the currently active sessions.
 func (w WebDriverCore) sessions() ([]Session, error) {
 	_, data, err := w.do(nil, "GET", "/sessions")
